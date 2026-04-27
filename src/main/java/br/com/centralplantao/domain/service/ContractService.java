@@ -1,5 +1,6 @@
 package br.com.centralplantao.domain.service;
 
+import br.com.centralplantao.domain.exception.ResourceNotFoundException;
 import br.com.centralplantao.domain.model.Contract;
 import br.com.centralplantao.domain.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
@@ -40,13 +41,9 @@ public class ContractService {
 
     @Transactional
     public Contract updateContract(Long id, Contract updatedData) {
-        log.info("[CONTRACT-SERVICE] - Starting update for contract ID: {}", id);
+        log.info("[CONTRACT-SERVICE] - Updating contract. ID: {}", id);
         
-        Contract existingContract = contractRepository.findById(id)
-                .orElseThrow(() -> {
-                    log.error("[CONTRACT-SERVICE] - Contract not found for update. ID: {}", id);
-                    return new RuntimeException("Contract not found");
-                });
+        Contract existingContract = findById(id);
 
         try {
             validateDates(updatedData);
@@ -80,9 +77,12 @@ public class ContractService {
     }
 
     public Contract findById(Long id) {
-        log.info("[CONTRACT-SERVICE] - Finding contract by ID: {}", id);
+        log.info("[CONTRACT-SERVICE] - Fetching contract for edit. ID: {}", id);
         return contractRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Contract not found"));
+                .orElseThrow(() -> {
+                    log.error("[CONTRACT-SERVICE] - Contract not found. ID: {}", id);
+                    return new ResourceNotFoundException("Contract not found with ID: " + id);
+                });
     }
 
     private void validateDates(Contract contract) {
