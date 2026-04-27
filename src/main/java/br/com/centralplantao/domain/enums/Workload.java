@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum Workload {
+    W8(8),
     W12(12),
     W24(24);
 

@@ -2,6 +2,9 @@ package br.com.centralplantao.domain.service;
 
 import br.com.centralplantao.domain.exception.ResourceNotFoundException;
 import br.com.centralplantao.domain.model.Contract;
+import br.com.centralplantao.domain.model.ContractedShift;
+import br.com.centralplantao.domain.enums.Workload;
+import br.com.centralplantao.domain.enums.ScheduleType;
 import br.com.centralplantao.domain.repository.ContractRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +26,7 @@ public class ContractService {
         log.debug("[CONTRACT-SERVICE] - Contract payload details: {}", contract);
 
         try {
-            validateDates(contract);
+            validateContract(contract);
             
             if (contract.getContractedShifts() != null) {
                 contract.getContractedShifts().forEach(shift -> shift.setContract(contract));
@@ -46,7 +49,7 @@ public class ContractService {
         Contract existingContract = findById(id);
 
         try {
-            validateDates(updatedData);
+            validateContract(updatedData);
             
             existingContract.setName(updatedData.getName());
             existingContract.setStartDate(updatedData.getStartDate());
@@ -85,9 +88,39 @@ public class ContractService {
                 });
     }
 
-    private void validateDates(Contract contract) {
+    private void validateContract(Contract contract) {
         if (contract.getEndDate().isBefore(contract.getStartDate())) {
             throw new IllegalArgumentException("The end date cannot be earlier than the start date.");
         }
+        
+        if (contract.getContractedShifts() != null) {
+            contract.getContractedShifts().forEach(this::validateWorkloadCorrelation);
+        }
+    }
+
+    private void validateWorkloadCorrelation(ContractedShift shift) {
+        ScheduleType schedule = shift.getScheduleType();
+        Workload workload = shift.getWorkload();
+        boolean isValid = false;
+
+        switch (schedule) {
+            case SHIFT_24X48 -> isValid = workload == Workload.W24;
+            case SHIFT_12X36 -> isValid = workload == Workload.W12;
+            case SHIFT_6X1, SHIFT_5X2, SHIFT_4X3 -> isValid = workload == Workload.W8;
+        }
+
+        if (!isValid) {
+            log.error("[CONTRACT-SERVICE] - Validation violation: Schedule {} is incompatible with Workload {}", schedule, workload);
+            throw new IllegalArgumentException(String.format("Schedule %s requires Workload %s", 
+                    schedule, getRequiredWorkload(schedule)));
+        }
+    }
+
+    private String getRequiredWorkload(ScheduleType schedule) {
+        return switch (schedule) {
+            case SHIFT_24X48 -> "W24";
+            case SHIFT_12X36 -> "W12";
+            default -> "W8";
+        };
     }
 }
