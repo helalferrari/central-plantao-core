@@ -12,7 +12,7 @@ CREATE TABLE contracted_shifts (
     id BIGSERIAL PRIMARY KEY,
     sector_description VARCHAR(255) NOT NULL,
     slot_quantity INTEGER NOT NULL,
-    workload VARCHAR(255) NOT NULL,
+    workload VARCHAR(50) NOT NULL,
     schedule_type VARCHAR(50) NOT NULL,
     professional_type VARCHAR(50) NOT NULL,
     contract_id BIGINT NOT NULL,

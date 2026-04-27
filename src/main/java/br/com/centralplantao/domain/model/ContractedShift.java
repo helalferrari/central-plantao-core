@@ -2,6 +2,7 @@ package br.com.centralplantao.domain.model;
 
 import br.com.centralplantao.domain.enums.ScheduleType;
 import br.com.centralplantao.domain.enums.ProfessionalType;
+import br.com.centralplantao.domain.enums.Workload;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,8 +25,9 @@ public class ContractedShift {
     @Column(name = "slot_quantity", nullable = false)
     private Integer slotQuantity;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "workload", nullable = false)
-    private String workload;
+    private Workload workload;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "schedule_type", nullable = false)
