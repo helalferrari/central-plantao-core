@@ -1,0 +1,17 @@
+package br.com.centralplantao.api.dto;
+
+import br.com.centralplantao.domain.enums.ScheduleType;
+import br.com.centralplantao.domain.enums.ProfessionalType;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+public record ContractedShiftRequest(
+    @NotBlank @Size(max = 255) String sectorDescription,
+    @NotNull @Min(1) Integer slotQuantity,
+    @NotBlank @Size(max = 255) String workload,
+    @NotNull ScheduleType scheduleType,
+    @NotNull ProfessionalType professionalType
+) {
+}
