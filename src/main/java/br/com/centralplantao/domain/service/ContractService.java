@@ -1,6 +1,7 @@
 package br.com.centralplantao.domain.service;
 
 import br.com.centralplantao.domain.exception.ResourceNotFoundException;
+import br.com.centralplantao.domain.model.Client;
 import br.com.centralplantao.domain.model.Contract;
 import br.com.centralplantao.domain.model.ContractedShift;
 import br.com.centralplantao.domain.enums.Workload;
@@ -19,11 +20,14 @@ import java.util.List;
 public class ContractService {
 
     private final ContractRepository contractRepository;
+    private final ClientService clientService;
 
     @Transactional
-    public Contract saveContract(Contract contract) {
-        log.info("[CONTRACT-SERVICE] - Starting contract persistence for: {}", contract.getName());
-        log.debug("[CONTRACT-SERVICE] - Contract payload details: {}", contract);
+    public Contract saveContract(Long clientId, Contract contract) {
+        log.info("[CONTRACT-SERVICE] - Starting contract persistence for client ID: {}", clientId);
+        
+        Client client = clientService.findById(clientId);
+        contract.setClient(client);
 
         try {
             validateContract(contract);
@@ -37,24 +41,26 @@ public class ContractService {
             return savedContract;
             
         } catch (Exception e) {
-            log.error("[CONTRACT-SERVICE] - Error persisting contract: {}. Reason: {}", contract.getName(), e.getMessage(), e);
+            log.error("[CONTRACT-SERVICE] - Error persisting contract. Reason: {}", e.getMessage(), e);
             throw e;
         }
     }
 
     @Transactional
-    public Contract updateContract(Long id, Contract updatedData) {
+    public Contract updateContract(Long id, Long clientId, Contract updatedData) {
         log.info("[CONTRACT-SERVICE] - Updating contract. ID: {}", id);
         
         Contract existingContract = findById(id);
+        Client client = clientService.findById(clientId);
 
         try {
             validateContract(updatedData);
             
-            existingContract.setName(updatedData.getName());
+            existingContract.setDescription(updatedData.getDescription());
             existingContract.setStartDate(updatedData.getStartDate());
             existingContract.setEndDate(updatedData.getEndDate());
             existingContract.setActive(updatedData.isActive());
+            existingContract.setClient(client);
             
             // Clear and update shifts
             existingContract.getContractedShifts().clear();

@@ -25,38 +25,36 @@ public class ContractController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ContractResponse create(@RequestBody @Valid ContractRequest request) {
-        log.info("Received request to create a new contract: {}", request.name());
+        log.info("[CONTRACT-CONTROLLER] - Received request to create contract: {}", request.description());
         log.debug("Request payload: {}", request);
 
         Contract contract = contractMapper.toEntity(request);
-        Contract savedContract = contractService.saveContract(contract);
+        Contract savedContract = contractService.saveContract(request.clientId(), contract);
         
-        log.info("Contract created successfully with name: {}", request.name());
         return contractMapper.toResponse(savedContract);
     }
 
     @PutMapping("/{id}")
     public ContractResponse update(@PathVariable Long id, @RequestBody @Valid ContractRequest request) {
-        log.info("Received request to update contract ID: {}", id);
+        log.info("[CONTRACT-CONTROLLER] - Received request to update contract ID: {}", id);
         log.debug("Update payload: {}", request);
 
         Contract contract = contractMapper.toEntity(request);
-        Contract updated = contractService.updateContract(id, contract);
+        Contract updated = contractService.updateContract(id, request.clientId(), contract);
 
-        log.info("Contract ID: {} updated successfully", id);
         return contractMapper.toResponse(updated);
     }
 
     @GetMapping("/{id}")
     public ContractResponse findById(@PathVariable Long id) {
-        log.info("Received request to find contract by ID: {}", id);
+        log.info("[CONTRACT-CONTROLLER] - Finding contract by ID: {}", id);
         Contract contract = contractService.findById(id);
         return contractMapper.toResponse(contract);
     }
 
     @GetMapping
     public List<ContractResponse> list() {
-        log.info("Received request to list all contracts");
+        log.info("[CONTRACT-CONTROLLER] - Listing all contracts");
         List<Contract> contracts = contractService.findAll();
         return contractMapper.toResponseList(contracts);
     }

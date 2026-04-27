@@ -11,10 +11,11 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {ClientMapper.class})
 public interface ContractMapper {
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "client", ignore = true)
     @Mapping(target = "contractedShifts", source = "contractedShifts")
     Contract toEntity(ContractRequest request);
 

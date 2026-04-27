@@ -5,10 +5,11 @@ import java.util.List;
 
 public record ContractResponse(
     Long id,
-    String name,
+    String description,
     LocalDate startDate,
     LocalDate endDate,
     boolean active,
+    ClientResponse client,
     List<ContractedShiftResponse> contractedShifts
 ) {
 }

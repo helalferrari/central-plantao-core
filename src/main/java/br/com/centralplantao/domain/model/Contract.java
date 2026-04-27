@@ -21,7 +21,7 @@ public class Contract {
     private Long id;
 
     @Column(nullable = false)
-    private String name;
+    private String description;
 
     @Column(name = "start_date", nullable = false)
     private LocalDate startDate;
@@ -31,6 +31,10 @@ public class Contract {
 
     @Column(nullable = false)
     private boolean active;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "client_id", nullable = false)
+    private Client client;
 
     @OneToMany(mappedBy = "contract", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

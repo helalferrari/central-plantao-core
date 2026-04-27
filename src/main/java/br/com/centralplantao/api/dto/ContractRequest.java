@@ -10,10 +10,11 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record ContractRequest(
-    @NotBlank @Size(max = 255) String name,
+    @NotBlank @Size(max = 255) String description,
     @NotNull LocalDate startDate,
     @NotNull LocalDate endDate,
     boolean active,
+    @NotNull Long clientId,
     @NotEmpty @Valid List<ContractedShiftRequest> contractedShifts
 ) {
 }
