@@ -38,9 +38,51 @@ public class ContractService {
         }
     }
 
+    @Transactional
+    public Contract updateContract(Long id, Contract updatedData) {
+        log.info("[CONTRACT-SERVICE] - Starting update for contract ID: {}", id);
+        
+        Contract existingContract = contractRepository.findById(id)
+                .orElseThrow(() -> {
+                    log.error("[CONTRACT-SERVICE] - Contract not found for update. ID: {}", id);
+                    return new RuntimeException("Contract not found");
+                });
+
+        try {
+            validateDates(updatedData);
+            
+            existingContract.setName(updatedData.getName());
+            existingContract.setStartDate(updatedData.getStartDate());
+            existingContract.setEndDate(updatedData.getEndDate());
+            existingContract.setActive(updatedData.isActive());
+            
+            // Clear and update shifts
+            existingContract.getContractedShifts().clear();
+            if (updatedData.getContractedShifts() != null) {
+                updatedData.getContractedShifts().forEach(shift -> {
+                    shift.setContract(existingContract);
+                    existingContract.getContractedShifts().add(shift);
+                });
+            }
+            
+            Contract saved = contractRepository.save(existingContract);
+            log.info("[CONTRACT-SERVICE] - Contract ID: {} successfully updated", id);
+            return saved;
+        } catch (Exception e) {
+            log.error("[CONTRACT-SERVICE] - Error updating contract ID: {}. Reason: {}", id, e.getMessage(), e);
+            throw e;
+        }
+    }
+
     public List<Contract> findAll() {
         log.info("[CONTRACT-SERVICE] - Fetching all contracts");
         return contractRepository.findAll();
+    }
+
+    public Contract findById(Long id) {
+        log.info("[CONTRACT-SERVICE] - Finding contract by ID: {}", id);
+        return contractRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Contract not found"));
     }
 
     private void validateDates(Contract contract) {

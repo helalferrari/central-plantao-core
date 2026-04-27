@@ -35,6 +35,25 @@ public class ContractController {
         return contractMapper.toResponse(savedContract);
     }
 
+    @PutMapping("/{id}")
+    public ContractResponse update(@PathVariable Long id, @RequestBody @Valid ContractRequest request) {
+        log.info("Received request to update contract ID: {}", id);
+        log.debug("Update payload: {}", request);
+
+        Contract contract = contractMapper.toEntity(request);
+        Contract updated = contractService.updateContract(id, contract);
+
+        log.info("Contract ID: {} updated successfully", id);
+        return contractMapper.toResponse(updated);
+    }
+
+    @GetMapping("/{id}")
+    public ContractResponse findById(@PathVariable Long id) {
+        log.info("Received request to find contract by ID: {}", id);
+        Contract contract = contractService.findById(id);
+        return contractMapper.toResponse(contract);
+    }
+
     @GetMapping
     public List<ContractResponse> list() {
         log.info("Received request to list all contracts");
