@@ -12,6 +12,7 @@ public record ContractedShiftRequest(
     @NotBlank @Size(max = 255) String sectorDescription,
     @NotNull @Min(1) Integer slotQuantity,
     @NotNull Workload workload,
+    @NotNull java.time.LocalTime startHour,
     @NotNull ScheduleType scheduleType,
     @NotNull ProfessionalType professionalType
 ) {

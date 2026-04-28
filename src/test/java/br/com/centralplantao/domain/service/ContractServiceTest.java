@@ -1,5 +1,6 @@
 package br.com.centralplantao.domain.service;
 
+import br.com.centralplantao.domain.model.Client;
 import br.com.centralplantao.domain.model.Contract;
 import br.com.centralplantao.domain.model.ContractedShift;
 import br.com.centralplantao.domain.repository.ContractRepository;
@@ -24,6 +25,9 @@ class ContractServiceTest {
     @Mock
     private ContractRepository contractRepository;
 
+    @Mock
+    private ClientService clientService;
+
     @InjectMocks
     private ContractService contractService;
 
@@ -32,21 +36,26 @@ class ContractServiceTest {
     void shouldSaveContractSuccessfully() {
         // Arrange
         Contract contract = Contract.builder()
-                .name("Test Contract")
+                .description("Test Contract")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(1))
                 .active(true)
-                .contractedShifts(List.of(ContractedShift.builder().sectorDescription("ICU").build()))
+                .contractedShifts(List.of(ContractedShift.builder()
+                        .sectorDescription("ICU")
+                        .scheduleType(br.com.centralplantao.domain.enums.ScheduleType.SHIFT_12X36)
+                        .workload(br.com.centralplantao.domain.enums.Workload.W12)
+                        .build()))
                 .build();
 
+        when(clientService.findById(1L)).thenReturn(new Client());
         when(contractRepository.save(any(Contract.class))).thenReturn(contract);
 
         // Act
-        Contract savedContract = contractService.save(contract);
+        Contract savedContract = contractService.saveContract(1L, contract);
 
         // Assert
         assertThat(savedContract).isNotNull();
-        assertThat(savedContract.getName()).isEqualTo("Test Contract");
+        assertThat(savedContract.getDescription()).isEqualTo("Test Contract");
         verify(contractRepository, times(1)).save(contract);
     }
 
@@ -55,13 +64,15 @@ class ContractServiceTest {
     void shouldThrowExceptionWhenEndDateIsBeforeStartDate() {
         // Arrange
         Contract contract = Contract.builder()
-                .name("Invalid Contract")
+                .description("Invalid Contract")
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().minusDays(1))
                 .build();
 
+        when(clientService.findById(1L)).thenReturn(new Client());
+
         // Act & Assert
-        assertThatThrownBy(() -> contractService.save(contract))
+        assertThatThrownBy(() -> contractService.saveContract(1L, contract))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("The end date cannot be earlier than the start date.");
 

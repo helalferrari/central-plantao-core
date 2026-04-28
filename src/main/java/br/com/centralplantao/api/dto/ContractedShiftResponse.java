@@ -8,6 +8,7 @@ public record ContractedShiftResponse(
     Long id,
     String sectorDescription,
     Integer slotQuantity,
+    java.time.LocalTime startHour,
     Workload workload,
     ScheduleType scheduleType,
     ProfessionalType professionalType

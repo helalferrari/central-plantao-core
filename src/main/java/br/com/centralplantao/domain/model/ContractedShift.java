@@ -25,6 +25,9 @@ public class ContractedShift {
     @Column(name = "slot_quantity", nullable = false)
     private Integer slotQuantity;
 
+    @Column(name = "start_hour", nullable = false)
+    private java.time.LocalTime startHour = java.time.LocalTime.of(7, 0);
+
     @Enumerated(EnumType.STRING)
     @Column(name = "workload", nullable = false)
     private Workload workload;
